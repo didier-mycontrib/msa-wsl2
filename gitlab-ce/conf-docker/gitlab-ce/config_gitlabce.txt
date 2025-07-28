@@ -1,0 +1,24 @@
+si nécessaire, fixer le mot de passe de root:
+---------
+sudo docker exec -it mygitlab bash
+gitlab-rake "gitlab:password:reset[root]"
+password: lab2025git
+
+NB: attendre longtemps (beaucoup de secondes) après gitlab-rake "gitlab:password:reset[root]"
+----------------
+root / lab2025git
+didier / d2f2025!
+group d2f (public) with didier as developper role
+=====
+http://mygitlab:8008/admin
+===
+new projet "p1" (public, without readme for pushing existing)
+---> http://localhost:8008/d2f/p1.git , hostname of docker-container : mygitlab
+     http://mygitlab:8008/d2f/p1.git
+
+commands for existing repo:
+git remote rename origin old-origin
+git remote add origin http://mygitlab:8008/d2f/p1.git  (or git remote add origin git@mygitlab:d2f/p1.git if ssh)
+git remote add origin http://mygitlab:8008/d2f/vanilla_cypress_frontend.git  (or git remote add origin git@mygitlab:d2f/vanilla_cypress_frontend.git if ssh)
+git push --set-upstream origin --all
+git push --set-upstream origin --tags

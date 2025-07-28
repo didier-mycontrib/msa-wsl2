@@ -1,0 +1,33 @@
+sudo docker exec -it ...-runner bash
+sudo docker exec -it shell-node-runner bash
+sudo docker exec -it shell-maven-runner bash
+sudo docker exec -it my-dock-runner bash
+-------------------------
+
+gitlab-runner register 
+
+ou bien 
+gitlab-runner register --url http://mygitlab --token glrt-t1_b-kmr_GtyZVSV7U69hyb
+
+
+
+avec interactivement:   
+gitlab instance URL: http://mygitlab/    pas de :8008 car communication de container docker à container docker via docker network
+registration-token: YBA8oyaWPiKBgwkadLBx (selon console admin gitlab)
+tags : shell ou dock
+executor: docker ou shell
+default docker image: (ex: node:22 ou maven:3.9.9 )
+====
+effet : création de /etc/gitlab-runner/config.toml
+vu de l'exterieur comme /home/didier/mygitlab/my-shell-runner/config.toml ou bien /home/didier/mygitlab/my-dock-runner/config.tom
+si GITLAB_HOME=/home/didier/mygitlab
+si $GITLAB_HOME/my-...-runner pour volume pour /etc/gitlab-runner dans docker-compose.yml
+
+==============
+Deux versions du Runner :
+my-shell-runner : executor shell simple mais avec besoin de préparer jvm ou node ou autres
+my-dock-runner : executor docker mais besoin de docker in docker (d'une façon ou d'une autre)
+
+=====
+si sur WSL2/Windows , pensez aux réglages "numéro de ports" (pas de conflit) et à éventuellement configurer 
+C:\Windows\System32\Drivers\etc\hosts avec mygitlab comme alias de 127.0.0.1

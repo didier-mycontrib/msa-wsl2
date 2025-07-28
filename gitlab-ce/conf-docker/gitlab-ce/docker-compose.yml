@@ -1,0 +1,84 @@
+#NB: -port: host_port:container_port
+#standard ports : 22 pour ssh , 80 pour http et 443 pour https
+#pour eviter confliy : 2222 pour ssh , 8008 pour http et 44344 pout https
+#NB: dans future V2 , améliorer via volumes et sauvegardes
+
+networks:
+  mynetwork:
+    external: true
+      
+services:
+
+  ###################
+  # gitlab-ce server (on-premise)
+  ###################
+  mygitlab:
+    image: gitlab/gitlab-ce:17.8.6-ce.0
+    #restart: always
+    restart: unless-stopped
+    container_name: mygitlab
+    hostname: mygitlab
+    environment:
+      GITLAB_OMNIBUS_CONFIG: 
+        gitlab_rails['initial_root_password']='lab2025git'
+    ports:
+      - 8008:80
+      - 44344:443
+      - 2222:22
+    volumes:
+      - '$GITLAB_HOME/config:/etc/gitlab'
+      - '$GITLAB_HOME/logs:/var/log/gitlab'
+      - '$GITLAB_HOME/data:/var/opt/gitlab'
+    networks:
+      mynetwork:
+        aliases:
+          - mygitlab.server.host
+          - mygitlab.host
+          - mygitlab
+          
+  ###################
+  # shell-node-runner (mygitlab-runner) (on-premise)
+  ###################
+  shell-node-runner:
+    restart: unless-stopped
+    #image: gitlab/gitlab-runner
+    build: runner-dockerfiles/shell-node/.
+    container_name: shell-node-runner
+    hostname: shellnoderunner
+    ports:
+      - 7007:80
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - '$GITLAB_HOME/shellnoderunner:/etc/gitlab-runner'
+      - '$GITLAB_HOME/config:/etc/gitlab' 
+    networks:
+      mynetwork:
+        aliases:
+          - shellnoderunner.server.host
+          - shellnoderunner.host
+          - shellnoderunner 
+
+  ###################
+  # mydockrunner (mygitlab-runner) (on-premise)
+  # with privileged = false or true and
+  #  network_mode = "mynetwork" in config.toml
+  ###################
+  my-dock-runner:
+    restart: unless-stopped
+    image: gitlab/gitlab-runner
+    container_name: my-dock-runner
+    hostname: mydockrunner
+    privileged: true
+    ports:
+      - 7008:80
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker
+      - '$GITLAB_HOME/mydockrunner:/etc/gitlab-runner'
+      - '$GITLAB_HOME/config:/etc/gitlab' 
+    networks:
+      mynetwork:
+        aliases:
+          - mydockrunner.server.host
+          - mydockrunner.host
+          - mydockrunner                
