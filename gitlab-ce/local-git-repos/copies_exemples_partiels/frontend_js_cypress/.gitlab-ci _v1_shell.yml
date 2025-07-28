@@ -1,0 +1,35 @@
+variables:
+  docker_image_name: "didierdefrance69/vanilla_cypress_frontend:1"
+  docker_registry: "https://registry.hub.docker.com"
+
+job 0:
+  stage: .pre
+  script: echo "pre build"
+
+build:
+  tags:
+    - shell-node
+  stage: build
+  artifacts:
+    untracked: true
+  script:
+    - echo 'npm install'
+    - npm install
+
+test_cypress:
+  stage: test
+  dependencies:
+    - build
+  script:
+    - echo 'run ic script of package.json (start-server-and-test(http-server,3000,cypress))'
+    - echo 'npm run ic'
+
+
+deploy-prod:
+  stage: deploy
+  dependencies:
+    - build
+  script:
+    - echo "docker_image_name = ${docker_image_name} "
+    - docker build -t ${docker_image_name} .
+    - echo "just need to push image with credential "

@@ -1,0 +1,45 @@
+variables:
+  docker_image_name: "didierdefrance69/appli_spring_v3:1"
+  docker_registry: "docker.io" 
+  DEPLOY_USER: "didierdefrance69"
+  DEPLOY_TOKEN: "ConfidentialPassword_not_here!!!!!"
+  
+default:
+  image: maven:3.9-amazoncorretto-21-debian
+  cache:
+    paths:
+      - /root/.m2/repository/
+
+build:
+  tags:
+    - dock
+  stage: build
+  artifacts:
+    untracked: true
+  script:
+    - echo 'mvn clean package'
+    - mvn clean package -Dmaven.test.skip=true
+
+test_junit:
+  tags:
+    - dock
+  stage: test
+  dependencies:
+    - build
+  script:
+    - echo 'mvn test'
+    - mvn test
+
+
+deploy-prod:
+  tags:
+    - dock
+  stage: deploy
+  dependencies:
+    - build
+  script:
+    - echo "building docker_image_name = ${docker_image_name} "
+    - docker build -t ${docker_image_name} .
+    - echo "pushing image to docker registry "
+    - echo "docker login -u ${DEPLOY_USER} -p ${DEPLOY_TOKEN} ${docker_registry}"
+    - echo "docker image push ${docker_image_name}"

@@ -1,0 +1,42 @@
+variables:
+  docker_image_name: "didierdefrance69/vanilla_cypress_frontend:1"
+  docker_registry: "docker.io" 
+  DEPLOY_USER: "didierdefrance69"
+  DEPLOY_TOKEN: "ConfidentialPassword_not_here!!!!!"
+  
+default:
+  image: node_ts_cypress
+
+build:
+  tags:
+    - dock
+  stage: build
+  artifacts:
+    untracked: true
+  script:
+    - echo 'npm install'
+    - npm install
+
+test_cypress:
+  tags:
+    - dock
+  stage: test
+  dependencies:
+    - build
+  script:
+    - echo 'run ic script of package.json (start-server-and-test(http-server,3000,cypress))'
+    - npm run ic
+
+
+deploy-prod:
+  tags:
+    - dock
+  stage: deploy
+  dependencies:
+    - build
+  script:
+    - echo "building docker_image_name = ${docker_image_name} "
+    - docker build -t ${docker_image_name} .
+    - echo "pushing image to docker registry "
+    - echo "docker login -u ${DEPLOY_USER} -p ${DEPLOY_TOKEN} ${docker_registry}"
+    - echo "docker image push ${docker_image_name}"

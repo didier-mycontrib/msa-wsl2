@@ -1,0 +1,22 @@
+variables:
+  docker_image_name: "didierdefrance69/my_rest_api:1"
+  docker_registry: "docker.io" 
+  DEPLOY_USER: "didierdefrance69"
+  DEPLOY_TOKEN: "ConfidentialPassword_not_here!!!!!"
+  
+default:
+  image: python:3.13
+
+build_test_deploy:
+  tags:
+    - dock
+  script:
+    - echo 'pip install -r requirements.txt'
+    - pip install -r requirements.txt
+    - echo 'run pytest'
+    - pytest test_devise_api.py
+    - echo "building docker_image_name = ${docker_image_name} "
+    - docker build -t ${docker_image_name} .
+    - echo "pushing image to docker registry "
+    - echo "docker login -u ${DEPLOY_USER} -p ${DEPLOY_TOKEN} ${docker_registry}"
+    - echo "docker image push ${docker_image_name}"
